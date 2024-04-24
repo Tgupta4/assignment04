@@ -1,4 +1,3 @@
-package assignment04;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -58,19 +57,22 @@ public class RemoteOpener {
 					// TODO use out.println to send the message "getDoor"
 					
 					// the following prints the server response
+					out.println("getDoor");
 					System.out.println("Door is " + inScanner.nextLine());
 					break;
 				case "door state":
 					// TODO use out.println to send the message "getDoorState"
-					
+					out.println("getDoorState");
 					// the following deserializes the response and prints it
 					GarageDoorOpener.DoorState dstate = (GarageDoorOpener.DoorState)inObj.readObject();
 					System.out.println("Door State is " + dstate);
 					break;
 				case "state":
 					// TODO use out.println to send the message "getState"
-					
+					out.println("getState");
 					// TODO use code similar to the code above for DoorState to receive,
+					State state = (State) inObj.readObject();
+                    System.out.println("State is " + state);
 					// deserialize, and print the State of the server
 					break;
 				case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":

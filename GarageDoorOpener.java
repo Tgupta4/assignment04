@@ -1,5 +1,3 @@
-package assignment04;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -43,12 +41,14 @@ public class GarageDoorOpener {
 			while ((inputLine = in.readLine()) != null) {
 				System.out.println("Received " + inputLine);
 				if(inputLine.toLowerCase().equals("getdoor")) {
+					outText.println(opener.getDoorDescription());
 					// TODO use outText.println
 					// to send the opener's doorDescription
 				} else if(inputLine.toLowerCase().equals("getdoorstate")) {
 					// this is how you send a opener's serialized stateOfDoor
 					outObj.writeObject(opener.getStateOfDoor());
 				} else if(inputLine.toLowerCase().equals("getstate")) {
+					outObj.writeObject(opener.getCurrentState());
 					// TODO send the opener's serialized currentState
 				} else if(inputLine.toLowerCase().startsWith("set code")) {
 					// TODO use inputLine.toLowerCase().split("\\s+") to get an
@@ -61,6 +61,22 @@ public class GarageDoorOpener {
 					// you extract the int from a String such as "5" 
 					// using arr[4].charAt(0)-'0'
 					// or using Integer.parseIng(arr[4])
+					String[] parts = inputLine.toLowerCase().split("\\s+");
+						// Convert the string parts to integers and set the code
+						if (parts.length == 6) { // Make sure the command includes exactly four numbers
+							int[] newCode = new int[4];
+							try {
+								for (int i = 0; i < 4; i++) {
+									newCode[i] = Integer.parseInt(parts[i+2]); // parts[2], parts[3], parts[4], parts[5]
+								}
+								opener.setCode(newCode);
+								System.out.println("New code set: " + Arrays.toString(newCode));
+							} catch (NumberFormatException e) {
+								System.out.println("Invalid code format. Please enter four integers.");
+							}
+						} else {
+							System.out.println("Incorrect number of code digits. Please enter exactly four integers.");
+						}
 				} else if (inputLine.length() == 1 
 						&& '0' <= inputLine.charAt(0) && '9' >= inputLine.charAt(0)) {
 					// we pass the keypad digit to opener 
@@ -68,6 +84,7 @@ public class GarageDoorOpener {
 				} else if (inputLine.equals("-1")) {
 					// we pass translate "-1" to the int -1 and pass it to the opener 
 					opener.enterKey(-1);
+					// opener.runDoorMotor();
 				} else {
 					outText.println("Invalid Request");
 				}
@@ -105,10 +122,14 @@ public class GarageDoorOpener {
 		if(k != -1) {
 			// TODO get the new value for currentState 
 			// by calling the enter_key of currentState
+			currentState = currentState.enter_key(k, this);
+			
 		} else {
 			// TODO get the new value for currentState
+			currentState = currentState.press_open(this);
 			// by calling the press_open of currentState
 		}
+		doorMotorOn();
 		// the following output is just for tracking the state changes
 		System.out.println(currentState + ", valid = " 
 				+ valid + ", code = " + Arrays.toString(code));
@@ -127,9 +148,25 @@ public class GarageDoorOpener {
 	public DoorState getStateOfDoor() {
 		return stateOfDoor;
 	}
-	public int getCode(int i) {
-		return code[i];
+	// public int getCode(int i) {
+	// 	return code[i];
+	// }
+	public void runDoorMotor() {
+    // Implementation logic here, for example:
+	if (stateOfDoor == DoorState.DOWN) {
+		System.out.println("Opening Door " + doorDescription);
+		stateOfDoor = DoorState.UP;
+	} else {
+		System.out.println("Closing Door " + doorDescription);
+		stateOfDoor = DoorState.DOWN;         
 	}
+    // System.out.println("Door motor is running");
+}
+
+	public int[] getCode() {
+		return new int[] {1, 2, 3, 4}; // Example code
+	}
+	
 	public void setValid(boolean validIn) {
 		valid = validIn;		
 	}
